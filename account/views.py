@@ -3,11 +3,19 @@ from django.views import View
 from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login, logout
 
 class UserRegestration(View):
     form_class = UserRegisterForm
     template_name = 'account/register.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.error(request, 'You logged in', 'warning')
+            return redirect('home:home')
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
@@ -26,6 +34,12 @@ class UserLogin(View):
     form_class = UserLoginForm
     template_name = 'account/login.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.error(request, 'You logged in ', 'warning')
+            return redirect('home:home')
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
@@ -42,8 +56,13 @@ class UserLogin(View):
             messages.error(request, 'Username or password is wrong', 'warning')
         return render(request, self.template_name, {'form':form})
 
-class UserLogout(View):
+class UserLogout(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         messages.success(request, 'You logged out successfully', 'success')
         return redirect('home:home')
+
+
+class UserProfile(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'account/profile.html')
