@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p><a href="{% url 'account:user_profile' post.user.id %}">{{ post.user }}</a> - {{ post.updated|date:'Y M' }}</p>
+    <p>{{ post.body }}</p>
+{% endblock %}
