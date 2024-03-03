@@ -69,7 +69,7 @@ class UserLogout(LoginRequiredMixin, View):
 class UserProfile(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = get_object_or_404(User, pk = user_id)
-        posts = Post.objects.filter(user = user)
+        posts = user.posts.filter()
         return render(request, 'account/profile.html', {'user': user, 'posts': posts})
 
 
