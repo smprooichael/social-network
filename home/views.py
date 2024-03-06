@@ -15,7 +15,8 @@ class HomeView(View):
 class PostDetailView(View):
     def get(self, request, post_id, post_slug):
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
-        return render(request, 'home/detail.html', {'post':post})
+        Comments = post.pcomments.filter(is_reply=False)
+        return render(request, 'home/detail.html', {'post':post, 'Comments':Comments})
 
 
 class PostDeleteView(LoginRequiredMixin, View):

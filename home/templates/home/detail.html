@@ -4,8 +4,18 @@
 
     {% if request.user.id == post.user.id %}
         <a href="{% url 'home:post_delete' post.id %}" class="btn btn-danger">Delete</a>
-        <a href="{% url 'home:post_update' post.id %}" class="btn btn-info">Update</a>
+        <a href="{% url 'home:post_update' post.id %}" class="btn btn-info">Update</a><br/><br/>
     {% endif %}
     <p><a href="{% url 'account:user_profile' post.user.id %}">{{ post.user }}</a> - {{ post.updated|date:'Y M' }}</p>
-    <p>{{ post.body }}</p>
+    <p>{{ post.body }}</p><hr/>
+
+    {% for Comment in Comments %}
+        <div class="card bg-dark text-white">
+            <p class="card-header">{{ Comment.user }} - {{ Comment.created|timesince }}</p>
+            <p class="card-body">{{ Comment.body }}</p>
+        </div>
+    {% empty %}
+        <p>No Comments yet</p>
+    {% endfor %}
+
 {% endblock %}
