@@ -9,10 +9,36 @@
     <p><a href="{% url 'account:user_profile' post.user.id %}">{{ post.user }}</a> - {{ post.updated|date:'Y M' }}</p>
     <p>{{ post.body }}</p><hr/>
 
+    {% if request.user.is_authenticated %}
+        <form action="" method = 'post'>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Send">
+            </form>
+    {% else %}
+        <p class="alert alert-danger">Only login users can comment</p>
+    {% endif %}
+
+    <hr/>
     {% for Comment in Comments %}
         <div class="card bg-dark text-white">
             <p class="card-header">{{ Comment.user }} - {{ Comment.created|timesince }}</p>
             <p class="card-body">{{ Comment.body }}</p>
+
+            {% if request.user.is_authenticated %}
+            	<form action="{% url 'home:reply_comment' post.id Comment.id %}" method = 'post'>
+            	        {% csrf_token %}
+            	        {{ form.as_p }}
+            	        <input type="submit" value="Send">
+            	    </form>
+            {% endif %}
+
+            {% with replies=Comment.rcomments.all %}
+            	{% for reply in replies %}
+                    <p class="bg-primary p-3 m-2">{{ reply.user }} - {{ reply.created|timesince }}<br/>{{ reply.body }}</p>
+            	{% endfor %}
+
+            {% endwith %}
         </div>
     {% empty %}
         <p>No Comments yet</p>
