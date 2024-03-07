@@ -3,23 +3,30 @@ from django.views import View
 from .models import Post, Comment, Vote
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm
+from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm, SearchForm
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+
 class HomeView(View):
+    form_class = SearchForm()
+
     def get(self, request):
         posts = Post.objects.all()
-        return render(request, 'home/index.html', {'posts': posts})
+        if request.GET.get('search'):
+            posts = posts.filter(body__icontains=request.GET.get('search'))
+        return render(request, 'home/index.html', {'posts': posts, 'form': self.form_class})
 
 
 class PostDetailView(View):
     form_class = CommentCreateForm
     form_class_reply = CommentReplyForm
+
     def setup(self, request, *args, **kwargs):
         self.post_instance = get_object_or_404(Post, pk=kwargs['post_id'], slug=kwargs['post_slug'])
         return super().setup(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         Comments = self.post_instance.pcomments.filter(is_reply=False)
         can_like = False
@@ -38,7 +45,6 @@ class PostDetailView(View):
             new_comment.save()
             messages.success(request, 'Your comment submitted successfully!', 'success')
             return redirect('home:post_detail', self.post_instance.id, self.post_instance.slug)
-
 
 
 class PostDeleteView(LoginRequiredMixin, View):
