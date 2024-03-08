@@ -10,3 +10,9 @@ class Relations(models.Model):
 
     def __str__(self):
         return f'{self.from_user} is following {self.to_user}'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    age = models.PositiveSmallIntegerField(default=0)
+    bio = models.TextField(blank=True, null=True)
